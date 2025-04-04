@@ -46,7 +46,7 @@ ATGGTACCTA dna 1 CustomDNA CustomGeneName
   MODIFICATIONS: &199_CSO
   NAME: SpikeProtein
 
-- ID: ligand#3
+- ID: ligand
   TYPE: ligand
   COPIES: 1
   MODIFICATIONS: MG
@@ -74,7 +74,7 @@ ATGGTACCTA dna 1 CustomDNA CustomGeneName
   NAME: SpikeProtein       # Custom display name
 
 # Ligand entry (raw input)
-- ID: ligand#3
+- ID: ligand
   TYPE: ligand
   COPIES: 1
   MODIFICATIONS: MG        # Magnesium ion
