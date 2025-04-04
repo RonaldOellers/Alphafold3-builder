@@ -109,7 +109,7 @@ af3build --email your@lab.com -o af3_input.fasta input.tsv
 >Covid_SpikeProtein &199_CSO sp|P0DTD1|R1AB_SARS2 Replicase polyprotein 1ab OS=Severe acute respiratory syndrome coronavirus 2 OX=2697049 GN=rep PE=1 SV=1 #2
 MESLVPGFNEKTHVQLSLPVLQVRDVLVRGFGDSVE...
 
->Magnesium :: ligand
+>Magnesium
 MG
 
 >NM_001301244 &199_PSU NM_001301244.2 Homo sapiens tropomyosin 1 (TPM1), transcript variant Tpm1.2, mRNA #3
