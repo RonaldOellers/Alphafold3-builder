@@ -1,6 +1,8 @@
 # AlphaFold3 Input Preparation Toolkit
 
-This toolkit converts biological data (TSV/YAML) into AlphaFold3-compatible FASTA files. It supports raw sequences, database IDs (UniProt/NCBI), ligands, SMILES strings, and post-translational modifications.
+This toolkit converts biological data (TSV/YAML) into AlphaFold3Tools-compatible FASTA files. It supports raw sequences, database IDs (UniProt/NCBI), ligands, SMILES strings, and post-translational modifications.
+
+It also maps the Entries in the FASTA and JSON to the Chains as they will appear in the AlphaFold3 Output.
 
 ## Features
 - **Input Formats**: TSV/YAML with fields for ID, Type, Copies, Modifications.
@@ -11,7 +13,7 @@ This toolkit converts biological data (TSV/YAML) into AlphaFold3-compatible FAST
   - Post-translational modifications (`&position_code`).
   - Oligomer counts (`#copies`).
   - Separation between database ID info and custom FASTA headers.
-- **Chains Map**: Get Order of Chains with names and settings for refernce in downstream analysis
+- **Chains Map**: Get the Order of Chains with names and settings for refernce in downstream analysis
 
 ## Setup
 ### Using Conda Environment
