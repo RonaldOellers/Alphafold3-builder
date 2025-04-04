@@ -150,25 +150,35 @@ class AF3Builder:
             return f"# ERROR: {str(e)}"
 
     def _build_header(self, row, original_header=None):
-        """Construct FASTA header with collision-safe separators"""
-        # Validate sequence type first
+        """Build FASTA header compatible with fasta2json's parser"""
+        # Type Validation
         seq_type = row['Type'].lower()
         valid_types = {'protein', 'dna', 'rna', 'ligand', 'smile'}
         if seq_type not in valid_types:
             raise AF3Error(f"Invalid Type: {seq_type}. Allowed: {valid_types}")
 
-        # Process components
-        components = [
-            row.get('Name', row['ID']),
-           f"#{row['Copies']}" if int(row.get('Copies', 1)) != 1 else None,
-            row['Type'].lower(),
-            row.get('Modifications', ''),
-            original_header.strip() if original_header else None
-        ]
+        # Construct components in order: Name#Copies Modifications OriginalHeader
+        components = []
 
-        # Join with :: and remove empty fields
-        header_line = " :: ".join(filter(None, components)).replace(">", "")
-        return f">{header_line}"
+        # Construct components
+        name = row.get('Name', row['ID'])  # Use ID if Name is missing
+        components = [name] if name else []
+
+        # Modifications
+        mods = row.get("Modifications", "").strip()
+        if mods:
+            components.append(mods)
+
+        # Original header (strip existing > if present)
+        if original_header:
+            components.append(original_header.lstrip('>'))
+
+        # Copies (always added as the last element)
+        copies = int(row.get('Copies', 1))  # Default to 1 if missing or invalid
+        components.append(f"#{copies}" if copies != 1 else "")  # Add only if >1
+
+
+        return ">" + " ".join(components)
 
     def _wrap_sequence(self, sequence):
         """Split long sequences into 60-character lines"""
