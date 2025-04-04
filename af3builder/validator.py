@@ -1,4 +1,5 @@
 import re
+import pandas as pd
 from .exceptions import InvalidModificationError
 
 class ModificationValidator:
@@ -22,11 +23,15 @@ class ModificationValidator:
     
     def validate(self, mod_string, seq_type):
         """Check modification syntax like &199_CSO"""
+        # Convert NaN/None to empty string
+        if pd.isna(mod_string):
+            mod_string = ""
+
         if not mod_string:
             return
         
         seq_type = seq_type.lower()
-        if seq_type not in ['protein', 'dna', 'rna']:
+        if seq_type not in ['protein', 'dna', 'rna', 'ligand', 'smile']:
             raise ValueError(f"Invalid Type: {seq_type}")
 
         for match in self.MOD_PATTERN.finditer(mod_string):

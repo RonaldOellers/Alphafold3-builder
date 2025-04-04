@@ -41,26 +41,26 @@ ATGGTACCTA dna 1 CustomDNA CustomGeneName
 ### Input File Format (YAML Example)
 ```yaml
 - ID: P0DTD1
-  Type: protein
-  Copies: 2
-  Modifications: &199_CSO
-  Name: SpikeProtein
+  TYPE: protein
+  COPIES: 2
+  MODIFICATIONS: &199_CSO
+  NAME: SpikeProtein
 
 - ID: ligand#3
-  Type: ligand
-  Copies: 1
-  Modifications: MG
-  Name: LigandMG
+  TYPE: ligand
+  COPIES: 1
+  MODIFICATIONS: MG
+  NAME: LigandMG
 
 - ID: NM_001301244
-  Type: rna
-  Copies: 1
-  Modifications: &199_PSU
+  TYPE: rna
+  COPIES: 1
+  MODIFICATIONS: &199_PSU
 
 - ID: ATGGTACCTA
-  Type: dna
-  Copies: 1
-  Name: CustomGeneName
+  TYPE: dna
+  COPIES: 1
+  NAME: CustomGeneName
 
 ```
 
@@ -68,33 +68,33 @@ ATGGTACCTA dna 1 CustomDNA CustomGeneName
 ```yaml
 # Database-derived protein with modification
 - ID: P0DTD1               # UniProt ID
-  Type: protein
-  Copies: 2                # Homodimer
-  Modifications: &199_CSO  # Cysteine sulfenic acid at position 199
-  Name: SpikeProtein       # Custom display name
+  TYPE: protein
+  COPIES: 2                # Homodimer
+  MODIFICATIONS: &199_CSO  # Cysteine sulfenic acid at position 199
+  NAME: SpikeProtein       # Custom display name
 
 # Ligand entry (raw input)
 - ID: ligand#3
-  Type: ligand
-  Copies: 1
-  Modifications: MG        # Magnesium ion
-  Name: LigandMG           # Required for ligands
+  TYPE: ligand
+  COPIES: 1
+  MODIFICATIONS: MG        # Magnesium ion
+  NAME: LigandMG           # Required for ligands
 
 # Database-derived RNA with modification
 - ID: NM_001301244         # NCBI accession
-  Type: rna
-  Modifications: &199_PSU  # Pseudouridine at position 199
+  TYPE: rna
+  MODIFICATIONS: &199_PSU  # Pseudouridine at position 199
   # Name omitted → uses ID in FASTA header
 
 # Custom DNA sequence
 - ID: ATGGTACCTA           # Raw sequence
-  Type: dna
-  Name: CustomGeneName     # Required for custom sequences
+  TYPE: dna
+  NAME: CustomGeneName     # Required for custom sequences
 ```
 
 ### Command to Generate FASTA File
 ```bash
-af3build input.tsv --email your@lab.com -o af3_input.fasta
+af3build --email your@lab.com -o af3_input.fasta input.tsv
 ```
 
 ### Output FASTA Example (with separation between DB info and custom headers)
@@ -119,7 +119,7 @@ ATGGTACCTA...
 | Column         | Required | Values                |
 |----------------|----------|-----------------------|
 | `ID`           | Yes      | Database ID or raw sequence |
-| `Type`         | Yes      | `protein`, `dna`, `rna`, `ligand`, `smile` |
+| `TYPE`         | Yes      | `protein`, `dna`, `rna`, `ligand`, `smile` |
 | `Copies`       | No       | Integer (default=1)   |
 | `Modifications`| No       | `&position_code`      |
 | `Name`         | Required for custom sequences or ligands | String |

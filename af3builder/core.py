@@ -29,18 +29,26 @@ class AF3Builder:
         if path.suffix == ".tsv":
             # Read TSV with whitespace trimming and case normalization
             df = pd.read_csv(path, sep='\t')
-            df.columns = df.columns.str.strip().str.lower()
+            df.columns = df.columns.str.strip().str.upper()
             
             # Validate required columns
-            required = {'id', 'type'}
+            required = {'ID', 'TYPE'}
             missing = required - set(df.columns)
             if missing:
                 raise ValueError(
                     f"Missing columns in TSV: {missing}\n"
                     f"Found columns: {list(df.columns)}"
                 )
+            
+            # Fix empty rows for Modifications
+            df['MODIFICATIONS'] = df['MODIFICATIONS'].fillna('')
                 
-            return df.rename(columns={'id': 'ID', 'type': 'Type'})
+            return df.rename(columns={
+                'TYPE': 'Type',
+                'COPIES': 'Copies',
+                'MODIFICATIONS': 'Modifications',
+                'NAME': 'Name'
+            })
             
         else:
             # Read and validate YAML
@@ -51,10 +59,12 @@ class AF3Builder:
                 raise ValueError("YAML must contain a list of entries")
                 
             df = pd.DataFrame(data)
-            df.columns = df.columns.str.strip().str.title()  # Normalize to TitleCase
+            
+            # Normalize column names to UPPERCASE first
+            df.columns = df.columns.str.strip().str.upper()
             
             # Check required columns exist
-            required = {'ID', 'Type'}
+            required = {'ID', 'TYPE'}
             missing = required - set(df.columns)
             if missing:
                 raise ValueError(
@@ -63,10 +73,20 @@ class AF3Builder:
                 )
                 
             # Check for empty values
-            if df[['ID', 'Type']].isnull().any().any():
-                raise ValueError("YAML entries must have both 'ID' and 'Type'")
+            if df[['ID', 'TYPE']].isnull().any().any():
+                raise ValueError("YAML entries must have both 'ID' and 'TYPE'")
+            
+            # Fix empty rows for Modifications
+            df['MODIFICATIONS'] = df['MODIFICATIONS'].fillna('')
                 
-            return df
+            # Rename columns to match TSV format
+            return df.rename(columns={
+                'TYPE': 'Type',
+                'COPIES': 'Copies',
+                'MODIFICATIONS': 'Modifications',
+                'NAME': 'Name'
+            })
+
         
     def _process_row(self, row):
         """Handle one input row"""

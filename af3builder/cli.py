@@ -6,7 +6,7 @@ from .exceptions import AF3Error
 @click.command()
 @click.argument("input_file", type=click.Path(exists=True))
 @click.option("--email", help="Email for NCBI access")
-@click.option("-o", "--output", default="af3_input.fasta")
+@click.option("-o", "--output", help="Output Fasta File", default="af3_input.fasta")
 def main(input_file, email, output):
     """Convert biological data to AlphaFold3 input"""
     try:

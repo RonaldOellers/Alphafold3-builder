@@ -8,7 +8,7 @@ class SequenceFetcher:
         
     def get_sequence(self, identifier, seq_type):
         """Get sequence from ID or use raw input"""
-        if self._is_raw_sequence(identifier):
+        if self._is_raw_sequence(identifier, seq_type):
             return self._clean_sequence(identifier, seq_type)
             
         seq_type = seq_type.lower()
@@ -16,34 +16,44 @@ class SequenceFetcher:
             return self._fetch_uniprot(identifier)
         return self._fetch_ncbi(identifier)
 
-    def _is_raw_sequence(self, identifier):
-        """Check if input is a raw sequence (DNA, RNA, or protein) or a special case like ligand/smile."""
-        # Handle special cases for ligands and SMILES strings
+    def _is_raw_sequence(self, identifier, seq_type):
+        """Check if input is raw sequence or special case"""
+        seq_type = seq_type.lower()
+        if seq_type in ['ligand', 'smile']:
+            return True
         if identifier.startswith(('ligand', 'smile')):
             return True
-
-        # Define valid characters for DNA, RNA, and protein sequences
-        valid_dna_rna_chars = set("ATUCG")  # DNA and RNA bases
-        valid_protein_chars = set("ACDEFGHIKLMNPQRSTVWYUO")  # Amino Acids
-        # Check if all characters are valid for DNA/RNA or protein
-        identifier_upper = identifier.upper()
-        if all(c in valid_dna_rna_chars for c in identifier_upper):
-            return True
-        if all(c in valid_protein_chars for c in identifier_upper):
-            return True
-        # If the identifier contains invalid characters (e.g., numbers, underscores), it's not a raw sequence
-        return False
+            
+        valid_dna_chars = set("ATCGN")
+        valid_rna_chars = set("AUCGN")
+        valid_protein_chars = set("ACDEFGHIKLMNPQRSTVWY")
         
+        identifier_upper = identifier.upper()
+        if seq_type == "dna":
+            return all(c in valid_dna_chars for c in identifier_upper)
+        elif seq_type == "rna":
+            return all(c in valid_rna_chars for c in identifier_upper)
+        elif seq_type == "protein":
+            return all(c in valid_protein_chars for c in identifier_upper)
+        return False
+
     def _clean_sequence(self, sequence, seq_type):
-        """Remove spaces and validate"""
+        """Clean and validate sequences"""
         clean_seq = sequence.upper().replace(" ", "")
+        seq_type = seq_type.lower()
+        
+        if seq_type in ['ligand', 'smile']:
+            return clean_seq  # Skip validation
+            
         valid_chars = {
             "dna": "ATCGN",
             "rna": "AUCGN",
             "protein": "ACDEFGHIKLMNPQRSTVWY"
         }
+        
         if not all(c in valid_chars[seq_type] for c in clean_seq):
             raise InvalidSequenceError(f"Invalid {seq_type} sequence")
+            
         return clean_seq
 
     def _fetch_uniprot(self, uniprot_id):
