@@ -1,5 +1,6 @@
 import pandas as pd
 import yaml
+import re
 from pathlib import Path
 from .exceptions import AF3Error
 from .fetchers import SequenceFetcher
@@ -10,42 +11,55 @@ class AF3Builder:
         self.fetcher = SequenceFetcher(email)
         self.validator = ModificationValidator()
 
-    def build(self, input_file, output_file):
+    def build(self, input_file, output_file, verbose):
         """Convert input file to AlphaFold3 FASTA"""
         df = self._read_input(input_file)
         fasta_lines = []
 
-        if verbose == True:
+        # Debugging
+        if verbose:
             print("Input Dataframe:")
             print(df)
 
+        # Split df into index and row data then process
         for _, row in df.iterrows():
             entry = self._process_row(row)
             fasta_lines.append(entry)
+
+            # Debugging
+            if verbose:
+                print("Input Dataframe iteration:")
+                print("row:")
+                print(row)
+                print("entry:")
+                print(entry)
+                print("fasta_lines:")
+                print(fasta_lines)
 
         # Explicit empty lines between FASTA entries
         Path(output_file).write_text("\n\n".join(fasta_lines))
 
     def _read_input(self, input_file):
-        """Read TSV/YAML input with strict validation"""
+        """Read TSV/YAML input with accurate line-by-line preprocessing"""
         path = Path(input_file)
 
         if path.suffix == ".tsv":
-            # Read TSV with whitespace trimming and case normalization
-            df = pd.read_csv(path, sep='\t')
+            # TSV Handling
+            df = pd.read_csv(
+                path,
+                sep='\t',
+                dtype={'MODIFICATIONS': str, 'NAME': str},
+                na_values=[''],
+                keep_default_na=False
+            )
             df.columns = df.columns.str.strip().str.upper()
 
-            # Validate required columns
             required = {'ID', 'TYPE'}
-            missing = required - set(df.columns)
-            if missing:
-                raise ValueError(
-                    f"Missing columns in TSV: {missing}\n"
-                    f"Found columns: {list(df.columns)}"
-                )
+            if missing := required - set(df.columns):
+                raise ValueError(f"Missing TSV columns: {missing}")
 
-            # Fix empty rows for Modifications
             df['MODIFICATIONS'] = df['MODIFICATIONS'].fillna('')
+            df['NAME'] = df['NAME'].fillna('')
 
             return df.rename(columns={
                 'TYPE': 'Type',
@@ -55,35 +69,65 @@ class AF3Builder:
             })
 
         else:
-            # Read and validate YAML
-            with open(path) as f:
-                data = yaml.safe_load(f)
+            # YAML Line-by-Line Processing
+            with open(path, 'r', encoding='utf-8') as f:
+                yaml_lines = f.readlines()
+
+            processed_lines = []
+            for line in yaml_lines:
+                # Fixed regex pattern with proper flag handling
+                match = re.match(
+                    r'^(\s*)(modifications|name)\s*:\s*(.*?)(?=\s*(#|$))',  # Removed inline flags
+                    line,
+                    flags=re.IGNORECASE  # Added flag parameter here
+                )
+
+                if match:
+                    indent = match.group(1)
+                    key = match.group(2).lower()
+                    value = match.group(3).strip()
+                    comment = re.search(r'\s*(#.*)$', line)
+                    comment = comment.group(0) if comment else ''
+
+                    # Handle empty values and special characters
+                    needs_quotes = any([
+                        not value,
+                        any(c in value for c in {'&', '*', '!', '@'}),
+                        ' ' in value,
+                        value.startswith(('"', "'")),
+                        value != value.strip()
+                    ])
+
+                    if needs_quotes:
+                        processed_value = f'"{value}"' if value else '""'
+                    else:
+                        processed_value = value
+
+                    new_line = f"{indent}{key}: {processed_value}{comment}\n"
+                    processed_lines.append(new_line)
+                else:
+                    processed_lines.append(line)
+
+            # Parse and validate YAML
+            processed_yaml = ''.join(processed_lines)
+            data = yaml.safe_load(processed_yaml)
 
             if not isinstance(data, list):
                 raise ValueError("YAML must contain a list of entries")
 
+            # Convert to DataFrame
             df = pd.DataFrame(data)
-
-            # Normalize column names to UPPERCASE first
             df.columns = df.columns.str.strip().str.upper()
 
-            # Check required columns exist
+            # Validate required fields
             required = {'ID', 'TYPE'}
-            missing = required - set(df.columns)
-            if missing:
-                raise ValueError(
-                    f"Missing fields in YAML: {missing}\n"
-                    f"Found fields: {list(df.columns)}"
-                )
+            if missing := required - set(df.columns):
+                raise ValueError(f"Missing YAML fields: {missing}")
 
-            # Check for empty values
-            if df[['ID', 'TYPE']].isnull().any().any():
-                raise ValueError("YAML entries must have both 'ID' and 'TYPE'")
+            # Ensure string types and handle missing values
+            for col in {'MODIFICATIONS', 'NAME'} & set(df.columns):
+                df[col] = df[col].fillna('').astype(str)
 
-            # Fix empty rows for Modifications
-            df['MODIFICATIONS'] = df['MODIFICATIONS'].fillna('')
-
-            # Rename columns to match TSV format
             return df.rename(columns={
                 'TYPE': 'Type',
                 'COPIES': 'Copies',
@@ -91,46 +135,40 @@ class AF3Builder:
                 'NAME': 'Name'
             })
 
-
     def _process_row(self, row):
-        """Handle one input row"""
+        """Handle row with error catching"""
         try:
-            sequence = self.fetcher.get_sequence(row["ID"], row["Type"])
+            original_header, sequence = self.fetcher.get_sequence(row["ID"], row["Type"])
 
             if row["Type"].lower() == "rna":
                 sequence = sequence.replace("T", "U")
 
             self.validator.validate(row.get("Modifications", ""), row["Type"])
-
-            header = self._build_header(row, sequence_from_db=">" in sequence)
-            return f"{header}\n{self._wrap_sequence(sequence)}"
+            return f"{self._build_header(row, original_header)}\n{self._wrap_sequence(sequence)}"
 
         except AF3Error as e:
             return f"# ERROR: {str(e)}"
 
-    def _build_header(self, row, sequence_from_db=False):
-        """Ensure correct header order: name > mods > copies"""
-        parts = []
-
-        # Add database ID information if sequence is fetched from a database
-        if sequence_from_db:
-            parts.append(f">{row['ID']}")  # Original ID line from DB
-
-        # Add custom name or molecule type prefix for FASTA2JSON compatibility
+    def _build_header(self, row, original_header=None):
+        """Construct FASTA header with collision-safe separators"""
+        # Validate sequence type first
         seq_type = row['Type'].lower()
-        name = row.get('Name', row['ID'])
-        if seq_type in ['dna', 'rna', 'protein']:
-            parts.append(f">{seq_type}{name}")
-        elif seq_type in ['ligand', 'smile']:
-            parts.append(f">{seq_type}{name}")
+        valid_types = {'protein', 'dna', 'rna', 'ligand', 'smile'}
+        if seq_type not in valid_types:
+            raise AF3Error(f"Invalid Type: {seq_type}. Allowed: {valid_types}")
 
-        if mods := row.get("Modifications"):
-            parts[-1] += f" {mods}"  # Append modifications for FASTA2JSON to header
+        # Process components
+        components = [
+            row.get('Name', row['ID']),
+           f"#{row['Copies']}" if int(row.get('Copies', 1)) != 1 else None,
+            row['Type'].lower(),
+            row.get('Modifications', ''),
+            original_header.strip() if original_header else None
+        ]
 
-        if copies := row.get("Copies", 1) != 1:
-            parts[-1] += f" #{copies}"  # Append oligomer count
-
-        return "\n".join(parts)
+        # Join with :: and remove empty fields
+        header_line = " :: ".join(filter(None, components)).replace(">", "")
+        return f">{header_line}"
 
     def _wrap_sequence(self, sequence):
         """Split long sequences into 60-character lines"""

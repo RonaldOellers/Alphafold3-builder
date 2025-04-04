@@ -10,11 +10,11 @@ from .exceptions import AF3Error
 @click.option("-o", "--output", help="Output Fasta File", default="af3_input.fasta")
 @click.option("-v", "--verbose", is_flag=True, help="Make Output verbose for debugging")
 
-def main(input_file, email, output):
+def main(input_file, email, output, verbose):
     """Convert biological data to AlphaFold3 input"""
     try:
         builder = AF3Builder(email=email)
-        builder.build(input_file, output)
+        builder.build(input_file, output, verbose)
         click.echo(f"Successfully created {output}")
     except AF3Error as e:
         click.secho(f"Error: {str(e)}", fg="red")
