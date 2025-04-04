@@ -24,5 +24,5 @@ dependencies = [
 packages = ["af3builder"]
 
 [project.scripts]
-af3build = "af3builder.cli:main"
-
+af3build = "af3builder.build:build"
+af3map-chains = "af3builder.map_chains:map_chains"
