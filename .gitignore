@@ -10,3 +10,6 @@
 af3builder.egg-info/
 TestRuns/
 af3builder/__pycache__
+
+# Additional Repos
+Alphafold3Tools/
