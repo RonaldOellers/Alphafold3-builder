@@ -31,11 +31,11 @@ pytest tests/
 ## Usage
 ### Input File Format (TSV Example)
 ```TSV
-ID Type Copies Modifications Name
-P0DTD1 protein 2 &199_CSO SpikeProtein
-ligand#3 ligand 1 MG LigandMG
-NM_001301244 rna 1 &199_PSU MyRNA
-ATGGTACCTA dna 1 CustomDNA CustomGeneName
+ID	TYPE	COPIES	MODIFICATIONS	NAME
+P0DTD1	protein	2	&199_CSO	SpikeProtein
+ligand	ligand	1	MG	LigandMG
+NM_001301244	rna	1	&199_PSU	NM_001301244
+ATGGTACCTA	dna	1		CustomGeneName
 ```
 
 ### Input File Format (YAML Example)
@@ -44,22 +44,23 @@ ATGGTACCTA dna 1 CustomDNA CustomGeneName
   TYPE: protein
   COPIES: 2
   MODIFICATIONS: &199_CSO
-  NAME: SpikeProtein
+  NAME: Covid_SpikeProtein
 
-- ID: ligand
+- ID: MG
   TYPE: ligand
   COPIES: 1
-  MODIFICATIONS: MG
-  NAME: LigandMG
+  MODIFICATIONS:
+  NAME: Magnesium
 
 - ID: NM_001301244
   TYPE: rna
-  COPIES: 1
+  COPIES: 3
   MODIFICATIONS: &199_PSU
+  Name: NM_001301244
 
 - ID: ATGGTACCTA
   TYPE: dna
-  COPIES: 1
+  COPIES: 2
   NAME: CustomGeneName
 
 ```
@@ -71,25 +72,27 @@ ATGGTACCTA dna 1 CustomDNA CustomGeneName
   TYPE: protein
   COPIES: 2                # Homodimer
   MODIFICATIONS: &199_CSO  # Cysteine sulfenic acid at position 199
-  NAME: SpikeProtein       # Custom display name
+  NAME: SpikeProtein       # Custom display name (Always recomended)
 
 # Ligand entry (raw input)
 - ID: ligand
   TYPE: ligand
   COPIES: 1
   MODIFICATIONS: MG        # Magnesium ion
-  NAME: LigandMG           # Required for ligands
+  NAME: LigandMG
 
 # Database-derived RNA with modification
 - ID: NM_001301244         # NCBI accession
   TYPE: rna
+  COPIES: 3
   MODIFICATIONS: &199_PSU  # Pseudouridine at position 199
-  # Name omitted → uses ID in FASTA header
+  # Name omitted → leaves empty position in FASTA header
 
 # Custom DNA sequence
 - ID: ATGGTACCTA           # Raw sequence
   TYPE: dna
-  NAME: CustomGeneName     # Required for custom sequences
+  COPIES: 2
+  NAME: CustomGeneName
 ```
 
 ### Command to Generate FASTA File
@@ -99,19 +102,17 @@ af3build --email your@lab.com -o af3_input.fasta input.tsv
 
 ### Output FASTA Example (with separation between DB info and custom headers)
 ```FASTA
->P0DTD1
->proteinSpikeProtein &199_CSO #2
-MAEGASTERDA...
+>Covid_SpikeProtein :: #2 :: protein :: &199_CSO :: sp|P0DTD1|R1AB_SARS2 Replicase polyprotein 1ab OS=Severe acute respiratory syndrome coronavirus 2 OX=2697049 GN=rep PE=1 SV=1
+MESLVPGFNEKTHVQLSLPVLQVRDVLVRGFGDSVE...
 
->ligandLigandMG
+>Magnesium :: ligand
 MG
 
->NM_001301244
->rnaMyRNA &199_PSU
-AUGGCUAAU...
+>NM_001301244 :: #3 :: rna :: &199_PSU :: NM_001301244.2 Homo sapiens tropomyosin 1 (TPM1), transcript variant Tpm1.2, mRNA
+GCUCGCACUCCCGCUCCUCCGCCCGACCGCGCGCUCG...
 
->dnaCustomGeneName
-ATGGTACCTA...
+>CustomGeneName :: #2 :: dna
+ATGGTACCTA
 ```
 
 ## Input Specifications
@@ -122,7 +123,7 @@ ATGGTACCTA...
 | `TYPE`         | Yes      | `protein`, `dna`, `rna`, `ligand`, `smile` |
 | `Copies`       | No       | Integer (default=1)   |
 | `Modifications`| No       | `&position_code`      |
-| `Name`         | Required for custom sequences or ligands | String |
+| `Name`         | Recommended | String |
 
 ## Entrez Email Requirement
 
