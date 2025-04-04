@@ -1,0 +1,13 @@
+name: af3_pytest
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - requests
+  - biopython
+  - pandas
+  - pyyaml
+  - pip
+  - pip:
+    - click
+    - pytest

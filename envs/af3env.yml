@@ -1,0 +1,12 @@
+name: af3env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - requests
+  - biopython
+  - pandas
+  - pyyaml
+  - pip
+  - pip:
+    - click
