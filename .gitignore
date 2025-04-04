@@ -7,4 +7,6 @@
 *.vsix
 
 # Package build
-/af3builder.egg-info
+af3builder.egg-info/
+TestRuns/
+af3builder/__pycache__
