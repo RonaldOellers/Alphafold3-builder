@@ -131,10 +131,10 @@ ATGGTACCTA
 
 ### Entrez Email Requirement
 
-For fetching sequences from NCBI databases (DNA/RNA), you need an Entrez email. You can sign up for an account at [NCBI](https://www.ncbi.nlm.nih.gov/account/) and use your registered email address when running the program.
+For fetching sequences from NCBI databases (DNA/RNA), you need zo provide an email adress *or* an Entrez email. You can sign up for an account at [NCBI](https://www.ncbi.nlm.nih.gov/account/) and use your registered email address when running the program.
 
 ## af3map-chains
-Creates a clear mapping between AlphaFold3 output chains and original input sequences for downstream analysis. Use after you converted the FASTA file to json with [AlphaFold3_tools](https://github.com/snufoodbiochem/Alphafold3_tools: fasta2json
+Creates a clear mapping between AlphaFold3 output chains and original input sequences for downstream analysis. Use after you converted the FASTA file to json with [AlphaFold3_tools](https://github.com/snufoodbiochem/Alphafold3_tools): fasta2json
 
 ### Usage
 ```bash
