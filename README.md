@@ -18,8 +18,8 @@ It also maps the Entries in the FASTA and JSON to the Chains as they will appear
 ## Setup
 ### Using Conda Environment
 ```bash
-conda env create -f envs/af3env.yaml
-conda activate AF3buildToolkit
+conda env create -f envs/af3env.yaml #or any env with python 3.12
+conda activate AF3builder
 pip install -e .
 ```
 

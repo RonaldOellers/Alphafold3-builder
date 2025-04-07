@@ -1,4 +1,4 @@
-name: AF3buildToolkit
+name: AF3builder
 channels:
   - conda-forge
 dependencies:
