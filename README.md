@@ -155,7 +155,7 @@ af3build -o af3_input.fasta input_data.tsv
 
 2. Create AlphaFold3 json
 ```bash
-python alphafold3.py af3_input.fasta
+python fasta2json.py af3_input.fasta
 ```
 
 3. Generate Chain Mapping
