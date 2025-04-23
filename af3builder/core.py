@@ -75,7 +75,7 @@ class AF3Builder:
 
             processed_lines = []
             for line in yaml_lines:
-                # Fixed regex pattern with proper flag handling
+                # regex pattern for proper flag handling
                 match = re.match(
                     r'^(\s*)(modifications|name)\s*:\s*(.*?)(?=\s*(#|$))',  # Removed inline flags
                     line,
@@ -169,8 +169,9 @@ class AF3Builder:
         if mods:
             components.append(mods)
 
-        # Original header (strip existing > if present)
+        # Original header (strip existing > if present) (add | seperator)
         if original_header:
+            components.append("|") # Seperator between DB FASTA Header and fasta2json modifications
             components.append(original_header.lstrip('>'))
 
         # Copies (always added as the last element)
