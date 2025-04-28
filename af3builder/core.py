@@ -48,7 +48,7 @@ class AF3Builder:
             df = pd.read_csv(
                 path,
                 sep='\t',
-                dtype={'MODIFICATIONS': str, 'NAME': str},
+                dtype={'ID': str, 'TYPE':str, 'COPIES': int, 'MODIFICATIONS': str, 'NAME': str},
                 na_values=[''],
                 keep_default_na=False
             )
@@ -127,6 +127,11 @@ class AF3Builder:
             # Ensure string types and handle missing values
             for col in {'MODIFICATIONS', 'NAME'} & set(df.columns):
                 df[col] = df[col].fillna('').astype(str)
+            
+            # Ensure correct col types
+            df['ID'] = df['ID'].astype(str)
+            df['TYPE'] = df['TYPE'].astype(str)
+            df['COPIES'] = df['COPIES'].astype(int)
 
             return df.rename(columns={
                 'TYPE': 'Type',
