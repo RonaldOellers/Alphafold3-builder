@@ -150,7 +150,7 @@ af3map-chains af3_input.fasta prediction.json -o chain_map.tsv
 1. Generate Input FASTA
 
 ```bash
-af3build -o af3_input.fasta input_data.tsv
+af3build --email your@lab.com -o af3_input.fasta input_data.tsv
 ```
 
 2. Create AlphaFold3 json
