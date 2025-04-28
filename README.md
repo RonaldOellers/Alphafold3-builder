@@ -164,8 +164,8 @@ af3map-chains -o chain_mapping.tsv af3_input.fasta af3_input.json
 ```
 
 #### Example Output
-| ChainID | SampleName          | CopyNumber | TotalCopies | SequenceType |
-|---------|----------------------|------------|-------------|--------------|
+| ChainID | ChainName           | CopyNumber | TotalCopies | SequenceType |
+|---------|---------------------|------------|-------------|--------------|
 | A       | Covid_SpikeProtein  | 1          | 2           | protein      |
 | B       | Covid_SpikeProtein  | 2          | 2           | protein      |
 | C       | Magnesium           | 1          | 1           | ligand       |
@@ -200,7 +200,7 @@ import pandas as pd
 df = pd.read_csv("chain_mapping.tsv", sep="\t")
 
 # Select all copies of SpikeProtein
-spike_chains = ",".join(df[df["SampleName"] == "Covid_SpikeProtein"]["ChainID"])
+spike_chains = ",".join(df[df["ChainName"] == "Covid_SpikeProtein"]["ChainID"])
 cmd.select("spike", f"chain {spike_chains}")
 
 # Color RNA chains

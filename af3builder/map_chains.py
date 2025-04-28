@@ -45,7 +45,7 @@ def create_chain_map(fasta_file, json_file, output_file):
             for copy_num in range(1, copies + 1):
                 mapping.append({
                     "ChainID": json_chains[chain_idx],
-                    "SampleName": name,
+                    "ChainName": name,
                     "CopyNumber": copy_num,
                     "TotalCopies": copies
                 })
