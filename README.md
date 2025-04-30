@@ -215,7 +215,7 @@ You can estimate the number of tokens needed to run any Fasta file created by fa
 > You can use ```--smile_leniency``` to add a 5% headroom to your token count, as currently this tool cannot estimate the number of tokens from input other than dna,rna or protein
 
 > [!NOTE] 
-> If you have tested or found more information on token numbers successfully run on a different GPU please feel free to contact me or open a pull request to add to ```af3builder/gpu_config.py```
+> If you have tested or found more information on token numbers which successfully run on a different GPU please feel free to contact me or open a pull request to add to ```af3builder/gpu_config.py```
 
 Usage: af3estimate-tokens [OPTIONS] FASTA_PATH
 
