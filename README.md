@@ -219,7 +219,7 @@ You can estimate the number of tokens needed to run any Fasta file created by fa
 
 ### Usage: 
 ```bash
-af3estimate-tokens [OPTIONS] <input_fasta>
+af3estimate-tokens [OPTIONS] <input.fasta>
 ```
 
 #### Command-Line Options
