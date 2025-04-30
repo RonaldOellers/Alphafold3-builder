@@ -4,7 +4,7 @@ from .core import AF3Builder
 from .exceptions import AF3Error
 
 @click.command()
-@click.argument("input_file", type=click.Path(exists=True))
+@click.argument("input_file", type=click.Path(exists=True), help="Provide input yaml or tsv file")
 @click.option("-em", "--email", help="Email for NCBI access")
 @click.option("-o", "--output", help="Output FASTA file", default="af3_input.fasta")
 @click.option("-v", "--verbose", is_flag=True, help="Verbose output for debugging")

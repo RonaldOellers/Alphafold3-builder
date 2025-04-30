@@ -208,6 +208,25 @@ rna_chains = ",".join(df[df["SequenceType"] == "rna"]["ChainID"])
 cmd.color("blue", f"chain {rna_chains}")
 ```
 
+## af3estimate-tokens
+You can estimate the number of tokens needed to run any Fasta file created by fasta2json.py. Based on this you can get a recommendation which GPU you should atleast get to run your job. 
+
+> [!NOTE] 
+> You can use ```--smile_leniency``` to add a 5% headroom to your token count, as currently this tool cannot estimate the number of tokens from input other than dna,rna or protein
+
+> [!NOTE] 
+> If you have tested or found more information on token numbers successfully run on a different GPU please feel free to contact me or open a pull request to add to ```af3builder/gpu_config.py```
+
+Usage: af3estimate-tokens [OPTIONS] FASTA_PATH
+
+  AlphaFold3 token estimator with hardware recommendations
+
+Options:
+  --verbose         Verbose output
+  --recommendedgpu  Show GPU recommendations
+  --smile_leniency  Add 5% token headroom for ligand/small molecule complexity
+  --help            Show this message and exit.
+
 # Related Tools
 
 - [AlphaFold3_tools](https://github.com/snufoodbiochem/Alphafold3_tools): Includes `fasta2json.py` for converting FASTA to JSON.
