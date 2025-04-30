@@ -217,15 +217,19 @@ You can estimate the number of tokens needed to run any Fasta file created by fa
 > [!NOTE] 
 > If you have tested or found more information on token numbers which successfully run on a different GPU please feel free to contact me or open a pull request to add to ```af3builder/gpu_config.py```
 
-Usage: af3estimate-tokens [OPTIONS] FASTA_PATH
+### Usage: 
+```bash
+af3estimate-tokens [OPTIONS] <input_fasta>
+```
 
-  AlphaFold3 token estimator with hardware recommendations
+#### Command-Line Options
 
-Options:
-  --verbose         Verbose output
-  --recommendedgpu  Show GPU recommendations
-  --smile_leniency  Add 5% token headroom for ligand/small molecule complexity
-  --help            Show this message and exit.
+| Option                | Description                                                                                   |
+|-----------------------|-----------------------------------------------------------------------------------------------|
+| `--verbose`           | Enable verbose output. Shows detailed information and breakdown for each sequence.            |
+| `--recommendedgpu`    | Show GPU recommendations based on your input’s token count and current AlphaFold3 guidelines. |
+| `--smile_leniency`    | Add 5% token headroom to the total token count to account for larger ligands/small molecules.<br>This helps ensure GPU recommendations remain robust for complex or large molecule inputs. |                                                            |
+
 
 # Related Tools
 
