@@ -228,7 +228,7 @@ af3estimate-tokens [OPTIONS] <input.fasta>
 |-----------------------|-----------------------------------------------------------------------------------------------|
 | `--verbose`           | Enable verbose output. Shows detailed information and breakdown for each sequence.            |
 | `--recommendedgpu`    | Show GPU recommendations based on your input’s token count and current AlphaFold3 guidelines. |
-| `--smile_leniency`    | Add 5% token headroom to the total token count to account for larger ligands/small molecules.<br>This helps ensure GPU recommendations remain robust for complex or large molecule inputs. |                                                            |
+| `--smile_leniency`    | Add 5% token headroom to the total token count to account for larger ligands/small molecules.<br>This helps ensure GPU recommendations remain robust for complex or large molecule inputs, as currently it does not calculate the number of tokens accurately from non DNA/RNA/Protein Sequences. |                                                            |
 
 
 # Related Tools
