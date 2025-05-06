@@ -10,6 +10,7 @@ OFFICIAL_GPU_CAPACITY = {
 # Community-reported/estimated values
 COMMUNITY_GPU_CAPACITY = {
     'NVIDIA A100 48GB (with unified memory)': 4352,
+    'NVIDIA A40 48GB': 8660,
     'NVIDIA RTX 4090': 2400,
     'NVIDIA RTX 4060 8GB': 900,
     'NVIDIA RTX 3090': 2400
