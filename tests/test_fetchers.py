@@ -1,7 +1,10 @@
 import pytest
 from af3builder.fetchers import SequenceFetcher
 from af3builder.exceptions import SequenceFetchError, InvalidSequenceError
+import time
 
+# Rate limiting for NCBI requests (max 3 requests per second)
+NCBI_DELAY = 1
 
 def test_is_raw_sequence():
     fetcher = SequenceFetcher()
@@ -39,7 +42,6 @@ def test_is_raw_sequence():
     # Ligand prefix but invalid format should still return True
     assert fetcher._is_raw_sequence("ligand_invalid", "ligand") == True
 
-
 def test_clean_sequence():
     fetcher = SequenceFetcher()
 
@@ -64,70 +66,65 @@ def test_clean_sequence():
     with pytest.raises(InvalidSequenceError):
         fetcher._clean_sequence("XYZ12345", "protein")
 
-
-def test_fetch_uniprot(mocker):
+def test_fetch_uniprot():
     fetcher = SequenceFetcher()
 
-    # Mock a valid UniProt response
-    mock_response = mocker.patch('requests.get')
-    mock_response.return_value.status_code = 200
-    mock_response.return_value.text = ">sp|P12345|Example\nMAEGASTERDA\nTTTGVCCSAQW"
+    # Test with known UniProt entry
+    header, sequence = fetcher._fetch_uniprot("P0DTD1")
 
-    header, sequence = fetcher._fetch_uniprot("P12345")
+    assert "P0DTD1" in header
+    assert len(sequence) > 1000  # Actual SARS-CoV-2 spike protein
 
-    assert header == "sp|P12345|Example"
-    assert sequence == "MAEGASTERDATTTVCCSAQW"
-
-    # Mock an invalid UniProt response
-    mock_response.return_value.status_code = 404
+    # Test with invalid ID
     with pytest.raises(SequenceFetchError):
-        fetcher._fetch_uniprot("INVALID_ID")
+        fetcher._fetch_uniprot("INVALID_ID_UNIPROT_123")
 
-
-def test_fetch_ncbi(mocker):
+def test_fetch_ncbi():
+    # NCBI requires email
     fetcher = SequenceFetcher(email="test@example.com")
+    time.sleep(NCBI_DELAY)  # Rate limiting
 
-    # Mock a valid NCBI response
-    mock_entrez = mocker.patch('Bio.Entrez.efetch')
-
-    mock_handle = mock_entrez.return_value.__enter__.return_value  # Mock context manager behavior
-    mock_handle.read.return_value = ">NM_001301244 Example RNA\nAUGCUAAUCGG\nCCGGAAUUCGG"
-
+    # Test with known NCBI RNA entry
     header, sequence = fetcher._fetch_ncbi("NM_001301244")
 
-    assert header == ">NM_001301244 Example RNA"
-    assert sequence == "AUGCUAAUCGGCCGGAAUUCGG"
+    assert "NM_001301244" in header
+    assert len(sequence) > 100  # Actual mRNA sequence
 
-    # Missing email should raise ValueError
+    # Test with invalid accession
+    time.sleep(NCBI_DELAY)
+    with pytest.raises(SequenceFetchError):
+        fetcher._fetch_ncbi("INVALID_ACCESSION_NCBI_123")
+
+    # Test missing email
     fetcher_no_email = SequenceFetcher()
-
     with pytest.raises(ValueError):
         fetcher_no_email._fetch_ncbi("NM_001301244")
 
-    # Mock an invalid NCBI response (e.g., network error)
-    mock_entrez.side_effect = Exception("NCBI error")
-
-    with pytest.raises(SequenceFetchError):
-        fetcher._fetch_ncbi("INVALID_ACCESSION")
-
-
-def test_get_sequence(mocker):
+def test_get_sequence():
     fetcher = SequenceFetcher(email="test@example.com")
 
-    # Mock raw DNA sequence handling
+    # Test raw sequences
     header, sequence = fetcher.get_sequence("ATGC", "dna")
-
-    assert header is None  # No original header for raw sequences
+    assert header is None
     assert sequence == "ATGC"
 
-    # Mock raw RNA sequence handling (case-insensitive)
     header, sequence = fetcher.get_sequence("augcuaaucgg", "rna")
-
-    assert header is None  # No original header for raw sequences
+    assert header is None
     assert sequence == "AUGCUAAUCGG"
 
-    # Mock raw protein sequence handling (case-insensitive)
     header, sequence = fetcher.get_sequence("maegasterda", "protein")
-
-    assert header is None  # No original header for raw sequences
+    assert header is None
     assert sequence == "MAEGASTERDA"
+
+    # Test database lookups
+    header, sequence = fetcher.get_sequence("P0DTD1", "protein")
+    assert "P0DTD1" in header
+    assert len(sequence) == 7096
+    assert sequence.startswith("MESLVPGFNEKTHVQLSLPVLQVRDVLVRGFGDSVEEVLSEARQHLKDGTCGLVEVEKGVLPQLEQPYVFIKRSDARTAPHGHVMVELVAELEGIQYGRS")
+
+    time.sleep(NCBI_DELAY)
+
+    header, sequence = fetcher.get_sequence("NM_001301244", "rna")
+    assert "NM_001301244" in header
+    assert len(sequence) == 1217
+    assert sequence.startswith("GCTCGCACTCCCGCTCCTCCGCCCGACCGCGCGCTCGCCCCGCCGCTCCTGCTGCAGCCCCAGGGCCCCTCGCCGCCGCCACCATGGACGCCATCAAGAAGAAGATGCAGATGCTGA")
