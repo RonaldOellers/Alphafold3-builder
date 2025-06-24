@@ -10,8 +10,7 @@ version = "0.1.0"
 authors = [{name = "Ronald Oellers", email = "oellers@ie-freiburg.mpg.de"}]
 description = "AlphaFold3 input preparation toolkit"
 readme = "README.md"
-license = "MIT"
-license-files = ["LICENSE*"]
+license = {file = "LICENSE"}
 keywords = [
     "AlphaFold3",
     "AlphaFold",

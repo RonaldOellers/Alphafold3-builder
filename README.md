@@ -1,4 +1,6 @@
 # AlphaFold3 Input Preparation Toolkit
+[![CI Status](https://github.com/ronaldoellers/af3builder/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ronaldoellers/af3builder/actions/workflows/ci.yml)
+
 
 This toolkit converts biological data (TSV/YAML) into [AlphaFold3_tools](https://github.com/snufoodbiochem/Alphafold3_tools)-compatible FASTA files. It supports raw sequences, database IDs (UniProt/NCBI), ligands, SMILES strings, and post-translational modifications.
 
