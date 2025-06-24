@@ -19,6 +19,9 @@ class SequenceFetcher:
     def _is_raw_sequence(self, identifier, seq_type):
         """Check if input is raw sequence or special case"""
         seq_type = seq_type.lower()
+
+        if not identifier or identifier.strip() == "":
+            return False
         if seq_type in ['ligand', 'smile']:
             return True
         if identifier.startswith(('ligand', 'smile')):
