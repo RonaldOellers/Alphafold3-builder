@@ -1,8 +1,9 @@
 # AlphaFold3 Input Preparation Toolkit
 [![AF3Builder CI](https://github.com/RonaldOellers/Alphafold3-builder/actions/workflows/CI.yaml/badge.svg?branch=main&event=push)](https://github.com/RonaldOellers/Alphafold3-builder/actions/workflows/CI.yaml)
 
+Create Alphafold3 input using FASTA and prepare conversion to JSON.
 
-This toolkit converts biological data (TSV/YAML) into [AlphaFold3_tools](https://github.com/snufoodbiochem/Alphafold3_tools)-compatible FASTA files. It supports raw sequences, database IDs (UniProt/NCBI), ligands, SMILES strings, and post-translational modifications.
+This toolkit converts sample sheets (TSV/YAML) into [AlphaFold3_tools](https://github.com/snufoodbiochem/Alphafold3_tools)-compatible FASTA files. It supports raw sequences, database IDs (UniProt/NCBI), ligands, SMILES strings, and post-translational modifications.
 
 These FASTA files can easily be converted to the JSON format required by AlphaFold3 using [AlphaFold3_tools](https://github.com/snufoodbiochem/Alphafold3_tools).
 
