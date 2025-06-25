@@ -10,15 +10,19 @@ These FASTA files can easily be converted to the JSON format required by AlphaFo
 It also maps the Entries in the FASTA and JSON to the Chains as they will appear in the AlphaFold3 Output.
 
 ## Features
+- **Database Support**: Query UniProt (proteins), NCBI (DNA/RNA) by ID.
+- **Custom Sequences**: Add custom Proteins, DNA/RNA and small ligands (SMILE).
+  - supports the addition of PTMs
 - **Input Formats**: TSV/YAML with fields for ID, Type, Copies, Modifications.
-- **Database Support**: UniProt (proteins), NCBI (DNA/RNA).
 - **FASTA Output**:
   - Proper formatting for AlphaFold3 tools.
   - Automatic DNA→RNA conversion.
   - Post-translational modifications (`&position_code`).
-  - Oligomer counts (`#copies`).
+  - Oligomer counts (`#copies`) to easily include multimers.
   - Separation between database ID info and custom FASTA headers.
 - **Chains Map**: Get the Order of Chains with names and settings for reference in downstream analysis
+- **Estimate Job size**: Estimate the number of tokens/residues in your target complexes or single targets.
+  - receive a recommendation which GPU would be appropriate for your job
 
 ## Setup
 ### Using Conda Environment
@@ -251,4 +255,4 @@ This package also references code from [alphafold3](https://github.com/google-de
 
 This package is intended to extend the current tools and provide a method for fast and high throughput creation of input for local installations of [alphafold3](https://github.com/google-deepmind/alphafold3).
 
-[^1]: Park, Minho; Lee, Ungyu; Ha, Nam-Chul. "A rapid procedure to prepare for input file in a FASTA format for Alphafold3 local version." *Biodesign* 13, no. 1 (2025): 7–11.
+[^1]: Park, Minho; Lee, Ungyu; Ha, Nam-Chul. "A rapid procedure to prepare for input file in a FASTA format for Alphafold3 local version." *Biodesign* 13, no. 1 (2025): 7–11. https://doi.org/10.34184/kssb.2025.13.1.7
