@@ -128,7 +128,7 @@ class AF3Builder:
             # Ensure string types and handle missing values
             for col in {'MODIFICATIONS', 'NAME'} & set(df.columns):
                 df[col] = df[col].fillna('').astype(str)
-            
+
             # Ensure correct col types
             df['ID'] = df['ID'].astype(str)
             df['TYPE'] = df['TYPE'].astype(str)
@@ -163,19 +163,23 @@ class AF3Builder:
         if seq_type not in valid_types:
             raise AF3Error(f"Invalid Type: {seq_type}. Allowed: {valid_types}")
 
-        # Construct components in order: Name#Copies Modifications OriginalHeader
+        # Construct components in order: SequenceType Name OriginalHeader #Copies Modifications OriginalHeader
         components = []
 
         # Construct components
-        name = row.get('Name', row['ID'])  # Use ID if Name is missing
-        components = [name] if name else []
+        # Sequence Type
+        components = [seq_type]
+
+        # Sequence Name
+        name = row.get('Name') or row['ID']  # Use ID if Name is missing
+        components.append(name) if name else components.append("")
 
         # Modifications
         mods = row.get("Modifications", "").strip()
         if mods:
             components.append(mods)
 
-        # Original header (strip existing > if present) (add | seperator)
+        # Original header (strip existing > if present) (add | separator)
         if original_header:
             components.append("|") # Seperator between DB FASTA Header and fasta2json modifications
             components.append(original_header.lstrip('>'))
@@ -184,8 +188,8 @@ class AF3Builder:
         copies = int(row.get('Copies', 1))  # Default to 1 if missing or invalid
         components.append(f"#{copies}" if copies != 1 else "")  # Add only if >1
 
-
-        return ">" + " ".join(components)
+        # Construct header and filter out empty strings for header components
+        return ">" + " ".join(filter(None, components))
 
     def _wrap_sequence(self, sequence):
         """Split long sequences into 60-character lines"""
@@ -195,7 +199,7 @@ class AF3Builder:
 ###### Token and GPU Estimator ######
 class AlphaFold3TokenCounter:
     """FASTA token counter with GPU recommendations based on AF3 docs"""
-    
+
     def __init__(self, fasta_path, verbose=False, recommendedGPU=False, smile_leniency=False):
         self.fasta_path = fasta_path
         self.verbose = verbose
@@ -240,23 +244,23 @@ class AlphaFold3TokenCounter:
         """Get GPUs that can handle token count"""
         adjusted_tokens = self.total_tokens
         valid_gpus = []
-        
+
         # Check official GPUs
         for gpu, capacity in OFFICIAL_GPU_CAPACITY.items():
             if capacity >= adjusted_tokens:
                 valid_gpus.append((gpu, capacity, False))
-        
+
         # Check community GPUs
         for gpu, capacity in COMMUNITY_GPU_CAPACITY.items():
             if capacity >= adjusted_tokens:
                 valid_gpus.append((gpu, capacity, True))
-        
+
         return sorted(valid_gpus, key=lambda x: x[1])
 
     def summary(self):
         print(f"AlphaFold3 Token Report: {self.fasta_path}")
         print(f"Total Sequences: {len(self._token_data)}")
-        
+
         if self.smile_leniency:
             print(f"Original Tokens: {self._original_tokens}")
             print(f"Adjusted Tokens (+5%): {self.total_tokens}\n")
@@ -271,17 +275,17 @@ class AlphaFold3TokenCounter:
         if self.recommendedGPU:
             print("\nHardware Recommendations:")
             valid_gpus = self._get_recommended_gpus()
-            
+
             if valid_gpus:
                 # Separate official and community GPUs
                 official_gpus = [g for g in valid_gpus if not g[2]]
                 community_gpus = [g for g in valid_gpus if g[2]]
-                
+
                 if official_gpus:
                     print("  Officially Supported:")
                     for gpu, cap, _ in official_gpus:
                         print(f"    - {gpu} ({cap} tokens)")
-                        
+
                 if community_gpus:
                     print("\n  Community-Reported:")
                     for gpu, cap, _ in community_gpus:
@@ -289,6 +293,6 @@ class AlphaFold3TokenCounter:
             else:
                 print("  No supported GPUs can handle this input")
                 print(f"  Largest supported: {max(OFFICIAL_GPU_CAPACITY.values())} tokens")
-            
+
             print(40*'-')
             print("Please refer to https://github.com/google-deepmind/alphafold3/blob/main/docs/performance.md for official benchmarks and settings")
