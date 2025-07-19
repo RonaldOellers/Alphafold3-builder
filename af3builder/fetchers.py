@@ -81,6 +81,15 @@ class SequenceFetcher:
         try:
             handle = Entrez.efetch(db="nucleotide", id=accession, rettype="fasta")
             record = handle.read().splitlines()
+            if (
+                not record or
+                (record[0].startswith("Error:")) or            # NCBI explicit error
+                (not record[0].startswith(">")) or             # Not a FASTA header
+                (len(record) < 2)                              # No sequence
+            ):
+                error_text = record[0] if record else "empty result"
+                print(f"NCBI returned error: {error_text}")    # <--- you can log or print here!
+                raise SequenceFetchError(f"NCBI returned error: {error_text}")
             return record[0].strip(), "".join(line.strip() for line in record[1:])
         except Exception as e:
             raise SequenceFetchError(f"NCBI error: {str(e)}")
