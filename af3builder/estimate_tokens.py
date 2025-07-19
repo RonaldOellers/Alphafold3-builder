@@ -4,9 +4,9 @@ from .exceptions import AF3Error
 
 @click.command()
 @click.argument('fasta_path', type=click.Path(exists=True))
-@click.option('--verbose', is_flag=True, help='Verbose output')
-@click.option('--recommendedgpu', is_flag=True, help='Show GPU recommendations')
-@click.option('--smile_leniency', is_flag=True, 
+@click.option('-v','--verbose', is_flag=True, help='Verbose output')
+@click.option('-rgpu', '--recommendedgpu', is_flag=True, help='Show GPU recommendations')
+@click.option('--smile_leniency', is_flag=True,
               help='Add 5% token headroom for ligand/small molecule complexity')
 def estimateTokens(fasta_path, verbose, recommendedgpu, smile_leniency):
     """AlphaFold3 token estimator with hardware recommendations"""
